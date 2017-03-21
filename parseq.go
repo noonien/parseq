@@ -108,6 +108,13 @@ func unmarshal(val []string, f reflect.Value) error {
 	case reflect.String:
 		f.SetString(val[0])
 
+	case reflect.Bool:
+		b, err := strconv.ParseBool(val[0])
+		if err != nil {
+			return errors.New("not a valid boolean")
+		}
+		f.SetBool(b)
+
 	case reflect.Int, reflect.Int32, reflect.Int64:
 		i, err := strconv.ParseInt(val[0], 10, 64)
 		if err != nil {
