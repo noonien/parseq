@@ -149,7 +149,7 @@ func unmarshalField(val []string, f reflect.Value) error {
 		f.SetUint(u)
 
 	case reflect.Slice:
-		slice := reflect.MakeSlice(f.Type().Elem(), len(val), len(val))
+		slice := reflect.MakeSlice(f.Type(), len(val), len(val))
 
 		for i, item := range val {
 			item = strings.TrimSpace(item)
@@ -158,6 +158,7 @@ func unmarshalField(val []string, f reflect.Value) error {
 				return err
 			}
 		}
+		f.Set(slice)
 	}
 
 	return nil

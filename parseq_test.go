@@ -10,10 +10,11 @@ import (
 
 type t1 struct {
 	Str  string
-	Int  int    `query:"int"`
-	Bool bool   `json:"bool"`
-	Ign  string `parseq:"-"`
-	Ign2 string `json:"-"`
+	Int  int      `query:"int"`
+	Bool bool     `json:"bool"`
+	Arr  []string `query:"arr"`
+	Ign  string   `parseq:"-"`
+	Ign2 string   `json:"-"`
 }
 
 type t2 struct {
@@ -29,6 +30,7 @@ func TestNames(t *testing.T) {
 		{"Str=str", &t1{}, &t1{Str: "str"}},
 		{"int=42", &t1{}, &t1{Int: 42}},
 		{"bool=true", &t1{}, &t1{Bool: true}},
+		{"arr=i1&arr=i2", &t1{}, &t1{Arr: []string{"i1", "i2"}}},
 		{"ign=str", &t1{}, &t1{}},
 		{"ign2=str", &t1{}, &t1{}},
 		{"int=42", &t2{}, &t2{t1{Int: 42}}},
