@@ -94,7 +94,7 @@ func fieldName(f reflect.StructField) string {
 }
 
 func nameFromTag(f reflect.StructField, tag string) (string, bool) {
-	tag, ok := f.Tag.Lookup("query")
+	tag, ok := f.Tag.Lookup(tag)
 	if !ok {
 		return "", false
 	}
