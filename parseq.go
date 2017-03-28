@@ -50,13 +50,32 @@ func Unmarshal(q url.Values, v interface{}) error {
 		return errors.New("parseq: must be struct")
 	}
 
+	return unmarshalStruct(q, rv)
+}
+
+func unmarshalStruct(q url.Values, v reflect.Value) error {
 	errs := make(Errors)
 
-	t := rv.Type()
+	t := v.Type()
 	for i := 0; i < t.NumField(); i++ {
-		f := rv.Field(i)
+		f := v.Field(i)
+		ft := t.Field(i)
 
-		name := fieldName(t.Field(i))
+		if f.Kind() == reflect.Ptr {
+			f = f.Elem()
+		}
+
+		if f.Kind() == reflect.Struct && ft.Anonymous {
+			err := unmarshalStruct(q, f)
+			if err != nil {
+				for k, v := range err.(Errors) {
+					errs[k] = v
+				}
+			}
+			continue
+		}
+
+		name := fieldName(ft)
 		if name == "-" {
 			continue
 		}
@@ -66,7 +85,7 @@ func Unmarshal(q url.Values, v interface{}) error {
 			continue
 		}
 
-		err := unmarshal(val, f)
+		err := unmarshalField(val, f)
 		if err != nil {
 			errs[name] = err
 		}
@@ -103,7 +122,7 @@ func nameFromTag(f reflect.StructField, tag string) (string, bool) {
 	return strings.TrimSpace(parts[0]), true
 }
 
-func unmarshal(val []string, f reflect.Value) error {
+func unmarshalField(val []string, f reflect.Value) error {
 	switch f.Kind() {
 	case reflect.String:
 		f.SetString(val[0])
@@ -134,7 +153,7 @@ func unmarshal(val []string, f reflect.Value) error {
 
 		for i, item := range val {
 			item = strings.TrimSpace(item)
-			err := unmarshal([]string{item}, slice.Index(i))
+			err := unmarshalField([]string{item}, slice.Index(i))
 			if err != nil {
 				return err
 			}
